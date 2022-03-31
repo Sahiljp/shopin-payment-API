@@ -11,6 +11,12 @@ public class PaymentEntity {
     private String paymentid;
     private String userid;
     private String buyerid;
+    private float amount;
+    private String description;
+    private String currencyType;
+    private Integer quantity;
+    private String pname;
+    private LocalDateTime transactionDate;
 
     public String getPaymentid() {
         return paymentid;
@@ -84,10 +90,5 @@ public class PaymentEntity {
         this.transactionDate = transactionDate;
     }
 
-    private float amount;
-    private String description;
-    private String currencyType;
-    private Integer quantity;
-    private String pname;
-    private LocalDateTime transactionDate;
+
 }
