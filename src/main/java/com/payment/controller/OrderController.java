@@ -23,7 +23,7 @@ public class OrderController {
     @PostMapping("/checkoutList")
     public ResponseEntity<StripeResponse> checkoutList(@RequestBody List<CheckOutDto> checkOutDto, @RequestParam long userId) throws StripeException{
         Session session = orderService.checkoutList(checkOutDto,userId);
-        StripeResponse stripeResponse = new StripeResponse(session.getUrl());
+        StripeResponse stripeResponse = new StripeResponse(session.getUrl(),session.getId());
 
         return new ResponseEntity<>(stripeResponse , HttpStatus.OK);
     }
