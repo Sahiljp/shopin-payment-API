@@ -13,6 +13,15 @@ public class OrderEntity {
     private long totalprice;
     private long userId;
     private String sessionId;
+    private String paymentId;
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
+    }
 
     public long getId() {
         return id;

@@ -12,4 +12,6 @@ public interface OrderService {
     Session checkoutList(List<CheckOutDto> checkOutDto, long userId) throws StripeException;
 
     public void updateQtyAndCartData(List<CheckOutDto> checkOutDto, String sessionId) throws StripeException;
+
+   public Map<String, String> refundPayments(String paymentId) throws StripeException;
 }

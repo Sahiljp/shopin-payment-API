@@ -29,7 +29,7 @@ public class OrderController {
     @PostMapping("/checkoutList")
     public ResponseEntity<StripeResponse> checkoutList(@RequestBody List<CheckOutDto> checkOutDto, @RequestParam long userId) throws StripeException{
         Session session = orderService.checkoutList(checkOutDto,userId);
-        StripeResponse stripeResponse = new StripeResponse(session.getUrl(),session.getId());
+        StripeResponse stripeResponse = new StripeResponse(session.getUrl(),session.getId(),session.getPaymentIntent());
 
         return new ResponseEntity<>(stripeResponse , HttpStatus.OK);
     }
@@ -44,6 +44,15 @@ public class OrderController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
-
+    @GetMapping("/refundPayments")
+    public ResponseEntity<Map<String, String>> refundPayments(@RequestParam("paymentId") String paymentId) throws StripeException {
+        try {
+            logger.info("Inside updateQtyAndCartData() : " + paymentId);
+            return  new ResponseEntity<>(orderService.refundPayments(paymentId),HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error occured while registering user {} :Reason :{}", paymentId, e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
 }

@@ -7,7 +7,9 @@ import com.payment.repository.OrderRepository;
 import com.payment.service.OrderService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Refund;
 import com.stripe.model.checkout.Session;
+import com.stripe.param.RefundCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,12 +53,16 @@ public class OrderServiceImpl implements OrderService {
                 .addAllLineItem(sessionItemList)
                 .build();
         Session session = Session.create(params);
+        session.getPaymentIntent();
+        System.out.println(session.getPaymentIntent());
         //save in database
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setSessionId(session.getId());
         orderEntity.setTotalprice(session.getAmountTotal()/100);
         orderEntity.setUserId(userId);
+        orderEntity.setPaymentId(session.getPaymentIntent());
          orderRepository.save(orderEntity);
+
         return session;
     }
 
@@ -81,8 +88,27 @@ public class OrderServiceImpl implements OrderService {
         Stripe.apiKey = stripeKey;
         Session session = Session.retrieve(sessionId);
         if(session.getStatus().equals("complete")){
-            
+            System.out.println(session);
+
            feignClient_to_product_service.updateQtyAndCartData(checkOutDto);
         }
+    }
+
+    @Override
+    public Map<String, String> refundPayments(String paymentId) throws StripeException {
+        Stripe.apiKey = stripeKey;
+        Map<String,String> map = new HashMap<>();
+        OrderEntity orderEntity = orderRepository.getDataByPaymentId(paymentId);
+        RefundCreateParams params =
+                RefundCreateParams
+                        .builder()
+                        .setPaymentIntent(paymentId)
+                        .setAmount(orderEntity.getTotalprice())
+                        .build();
+
+        Refund refund = Refund.create(params);
+        map.put("data",refund.toString());
+
+        return map;
     }
 }
