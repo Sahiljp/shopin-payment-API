@@ -2,6 +2,7 @@ package com.payment.serviceImpl;
 
 import com.payment.entity.CheckOutDto;
 import com.payment.entity.OrderEntity;
+import com.payment.feign.FeignClient_to_product_service;
 import com.payment.repository.OrderRepository;
 import com.payment.service.OrderService;
 import com.stripe.Stripe;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -27,6 +29,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     OrderRepository orderRepository;
+
+    @Autowired
+    FeignClient_to_product_service feignClient_to_product_service;
 
     @Override
     public Session checkoutList(List<CheckOutDto> checkOutDtoList, long userId) throws StripeException {
@@ -54,6 +59,7 @@ public class OrderServiceImpl implements OrderService {
         return session;
     }
 
+
     private SessionCreateParams.LineItem createSessionLineItem(CheckOutDto checkOutDto) {
         return SessionCreateParams.LineItem.builder()
                 .setPriceData(createPriceData(checkOutDto))
@@ -67,5 +73,16 @@ public class OrderServiceImpl implements OrderService {
                 .setUnitAmount((long) (checkOutDto.getPrice()*100))
                 .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
                         .setName(checkOutDto.getProductName()).build()).build();
+    }
+
+    @Override
+    public void updateQtyAndCartData(List<CheckOutDto> checkOutDto, String sessionId) throws StripeException {
+
+        Stripe.apiKey = stripeKey;
+        Session session = Session.retrieve(sessionId);
+        if(session.getStatus().equals("complete")){
+            
+           feignClient_to_product_service.updateQtyAndCartData(checkOutDto);
+        }
     }
 }
