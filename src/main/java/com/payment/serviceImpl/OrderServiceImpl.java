@@ -103,7 +103,7 @@ public class OrderServiceImpl implements OrderService {
                 RefundCreateParams
                         .builder()
                         .setPaymentIntent(paymentId)
-                        .setAmount(orderEntity.getTotalprice())
+                        .setAmount(100*orderEntity.getTotalprice())
                         .build();
 
         Refund refund = Refund.create(params);
